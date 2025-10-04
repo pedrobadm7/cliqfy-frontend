@@ -19,7 +19,7 @@ const api = ky.create({
     ],
 afterResponse: [
   async (request, _options, response) => {
-    if (response.status === 401) {
+    if (response.status === 401 && !request.url.includes('/auth/refresh') && !request.url.includes('/auth/login')) {
       try {
         const refreshResponse = await ky.post(`${config.apiUrl}/auth/refresh`);
 

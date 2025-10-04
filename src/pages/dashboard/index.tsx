@@ -1,4 +1,5 @@
 
+import NewOrderDialog from '@/components/NewOrderDialog';
 import { OrdersFilters } from '@/components/OrdersFilters';
 import { OrdersTable } from '@/components/OrdersTable';
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ export function Dashboard() {
     search: "",
     status: "all",
   });
+  const [openNewOrderDialog, setOpenNewOrderDialog] = useState(false);
 
   const { data: orders = [], isLoading, error } = useFetchOrders();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
@@ -57,7 +59,7 @@ export function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => setOpenNewOrderDialog(true)}>
               <Plus className="h-4 w-4" />
               Nova Ordem
             </Button>
@@ -87,6 +89,7 @@ export function Dashboard() {
           />
         </div>
       </main>
+      <NewOrderDialog open={openNewOrderDialog} onOpenChange={setOpenNewOrderDialog} />
     </div>
   );
 }
