@@ -2,6 +2,16 @@ import { buildUrl } from '@/lib/utils';
 import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 
+export interface User {
+  id: string;
+  nome: string;
+  email: string;
+  role: 'admin' | 'agent' | 'viewer';
+  ativo: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Ordem {
   id: string;
   cliente: string;
@@ -9,19 +19,11 @@ export interface Ordem {
   status: 'aberta' | 'em_andamento' | 'concluida' | 'cancelada';
   data_criacao: string;
   data_atualizacao: string;
-  data_conclusao?: string;
+  data_conclusao: string | null;
   criado_por_id: string;
-  responsavel_id?: string;
-  criadoPor?: {
-    id: string;
-    nome: string;
-    email: string;
-  };
-  responsavel?: {
-    id: string;
-    nome: string;
-    email: string;
-  };
+  responsavel_id: string | null;
+  criadoPor: User;
+  responsavel: User | null;
 }
 
 export const useFetchOrders = () => {
