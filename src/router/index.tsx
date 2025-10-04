@@ -1,4 +1,5 @@
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { PublicRoute } from '@/components/PublicRoute';
 import { Dashboard } from '@/pages/dashboard';
 import { createBrowserRouter } from 'react-router-dom';
 import { Login } from '../pages/auth/login';
@@ -15,7 +16,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <Login />,
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
   },
   {
     path: '/dashboard',
