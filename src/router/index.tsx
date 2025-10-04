@@ -2,6 +2,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { PublicRoute } from '@/components/PublicRoute';
 import { Dashboard } from '@/pages/dashboard';
 import { OrderDetail } from '@/pages/order-detail';
+import { Reports } from '@/pages/reports';
 import { createBrowserRouter } from 'react-router-dom';
 import { Login } from '../pages/auth/login';
 import NotFound from '../pages/not-found';
@@ -36,6 +37,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <OrderDetail />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/reports',
+    element: (
+      <ProtectedRoute>
+        <Reports />
       </ProtectedRoute>
     ),
   },

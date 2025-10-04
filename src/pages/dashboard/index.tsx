@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useLogout } from '@/services/auth/logout';
 import { useAuth } from '@/services/auth/me';
 import { useFetchOrders } from '@/services/ordem/fetch-orders';
-import { LogOut, Plus } from "lucide-react";
+import { BarChart3, LogOut, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     search: "",
@@ -66,10 +68,20 @@ export function Dashboard() {
           </div>
           <div className="flex items-center gap-3">
             {user?.role === 'admin' && (
-              <Button className="gap-2" onClick={() => setOpenNewOrderDialog(true)}>
-                <Plus className="h-4 w-4" />
-                Nova Ordem
-              </Button>
+              <>
+                <Button 
+                  variant="outline" 
+                  className="gap-2" 
+                  onClick={() => navigate('/reports')}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Relatórios
+                </Button>
+                <Button className="gap-2" onClick={() => setOpenNewOrderDialog(true)}>
+                  <Plus className="h-4 w-4" />
+                  Nova Ordem
+                </Button>
+              </>
             )}
             <Button 
               variant="outline" 

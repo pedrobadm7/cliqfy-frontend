@@ -23,8 +23,8 @@ export const useCreateOrder = () => {
       return response.json<Ordem>();
     },
     onSuccess: (newOrder) => {
-
-      queryClient.invalidateQueries({queryKey: ['orders']});
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['reports'],  });
       
       toast({
         title: 'Ordem criada com sucesso!',
