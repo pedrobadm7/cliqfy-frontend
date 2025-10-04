@@ -118,6 +118,8 @@ export function OrderDetail() {
     });
   };
 
+  console.log({order})
+
   const getTimelineIcon = (tipo: TimelineEvent["tipo"]) => {
     switch (tipo) {
       case "criacao":
