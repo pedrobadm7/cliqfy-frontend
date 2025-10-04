@@ -23,22 +23,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
+import { useAuth } from '@/services/auth/me';
+import { useCreateOrder } from '@/services/ordem/create-order';
+import { useFetchTechnicians } from '@/services/users/fetch-users';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 
 const formSchema = z.object({
   cliente: z.string().min(3, "Nome do cliente deve ter no mínimo 3 caracteres"),
-  equipamento: z.string().min(3, "Nome do equipamento deve ter no mínimo 3 caracteres"),
-  prioridade: z.enum(["baixa", "media", "alta", "urgente"]),
-  dataPrevista: z.string().min(1, "Data prevista é obrigatória"),
-  tecnico: z.string().optional(),
-  observacoes: z.string().optional(),
+  descricao: z.string().min(3, "Descrição deve ter no mínimo 3 caracteres"),
+  responsavel_id: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,36 +46,36 @@ interface NewOrderDialogProps {
 }
 
 export default function NewOrderDialog({ open, onOpenChange }: NewOrderDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const { data: user } = useAuth();
+  const { data: technicians = [] } = useFetchTechnicians();
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       cliente: "",
-      equipamento: "",
-      prioridade: "media",
-      dataPrevista: "",
-      tecnico: "",
-      observacoes: "",
+      descricao: "",
+      responsavel_id: "",
     },
   });
 
+  const { mutate: createOrder, isPending } = useCreateOrder();
+
   const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
+    if (!user) return;
     
-    // Simula chamada à API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const payload = {
+      cliente: data.cliente,
+      descricao: data.descricao,
+      criado_por_id: user.id,
+      responsavel_id: data.responsavel_id || user.id,
+    };
     
-    console.log("Nova ordem:", data);
-    
-    toast({
-      title: "Ordem criada com sucesso!",
-      description: "A nova ordem de serviço foi registrada no sistema.",
+    createOrder(payload, {
+      onSuccess: () => {
+        form.reset();
+        onOpenChange(false);
+      }
     });
-    
-    form.reset();
-    setIsSubmitting(false);
-    onOpenChange(false);
   };
 
   return (
@@ -110,12 +107,12 @@ export default function NewOrderDialog({ open, onOpenChange }: NewOrderDialogPro
 
               <FormField
                 control={form.control}
-                name="equipamento"
+                name="descricao"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Equipamento</FormLabel>
+                    <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome do equipamento" {...field} />
+                      <Input placeholder="Descrição do serviço" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -124,87 +121,42 @@ export default function NewOrderDialog({ open, onOpenChange }: NewOrderDialogPro
 
               <FormField
                 control={form.control}
-                name="prioridade"
+                name="responsavel_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prioridade</FormLabel>
+                    <FormLabel>Técnico Responsável (opcional)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione a prioridade" />
+                          <SelectValue placeholder="Selecione um técnico" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="baixa">Baixa</SelectItem>
-                        <SelectItem value="media">Média</SelectItem>
-                        <SelectItem value="alta">Alta</SelectItem>
-                        <SelectItem value="urgente">Urgente</SelectItem>
+                        {technicians.map((technician) => (
+                          <SelectItem key={technician.id} value={technician.id}>
+                            {technician.nome}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="dataPrevista"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data Prevista</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tecnico"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Técnico (opcional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome do técnico" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
-            <FormField
-              control={form.control}
-              name="observacoes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observações (opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Detalhes adicionais sobre a ordem de serviço"
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={isPending}
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Criar Ordem
               </Button>
             </DialogFooter>
