@@ -79,6 +79,7 @@ export function OrderDetail() {
       });
     }
 
+    // Se cancelada, mostrar cancelamento
     if (order.status === 'cancelada') {
       timeline.push({
         id: "5",
@@ -90,7 +91,23 @@ export function OrderDetail() {
       });
     }
 
-    return timeline.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+    // Ordenar por prioridade lógica, não apenas por data
+    const priorityOrder = {
+      'criacao': 1,
+      'atribuicao': 2,
+      'status_change': 3,
+      'conclusao': 4,
+      'cancelamento': 5
+    };
+
+    return timeline.sort((a, b) => {
+      // Primeiro por prioridade lógica
+      const priorityDiff = priorityOrder[a.tipo] - priorityOrder[b.tipo];
+      if (priorityDiff !== 0) return priorityDiff;
+      
+      // Se mesma prioridade, ordenar por data
+      return new Date(a.data).getTime() - new Date(b.data).getTime();
+    });
   };
 
   const getTimelineIcon = (tipo: TimelineEvent["tipo"]) => {
