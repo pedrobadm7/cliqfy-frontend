@@ -23,7 +23,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export const LoginForm = () => {
+export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: login, isPending } = useLogin();
 

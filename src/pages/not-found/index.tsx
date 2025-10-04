@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-const NotFound = () => {
+export function NotFound() {
   const location = useLocation();
 
   useEffect(() => {

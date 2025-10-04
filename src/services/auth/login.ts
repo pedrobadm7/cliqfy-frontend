@@ -2,6 +2,7 @@ import { useToast } from '@/hooks/use-toast';
 import { buildUrl } from '@/lib/utils';
 import api from '@/services/api';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 export interface LoginRequest {
   email: string;
@@ -21,6 +22,7 @@ export interface LoginResponse {
 
 export const useLogin = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (credentials: LoginRequest): Promise<LoginResponse> => {
@@ -34,6 +36,7 @@ export const useLogin = () => {
         title: 'Login realizado com sucesso',
         description: `Bem-vindo, ${data.user.nome}!`,
       });
+      navigate('/dashboard');
     },
     onError: (error) => {
       toast({
