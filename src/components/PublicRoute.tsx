@@ -8,7 +8,7 @@ interface PublicRouteProps {
 export const PublicRoute = ({ children }: PublicRouteProps) => {
   const hasToken = localStorage.getItem('access_token');
   const { data: user, isLoading } = useAuth({
-    enabled: !!hasToken, // Só faz a requisição se tiver token
+    enabled: !!hasToken, 
   });
 
   if (hasToken && isLoading) {
