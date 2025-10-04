@@ -6,7 +6,7 @@ export interface User {
   id: string;
   nome: string;
   email: string;
-  role: 'ADMIN' | 'AGENT' | 'VIEWER';
+  role: 'admin' | 'agent' | 'viewer';
   ativo: boolean;
   createdAt: string;
   updatedAt: string;

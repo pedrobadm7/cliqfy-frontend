@@ -2,10 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/services/auth/me";
+import { useCheckIn } from "@/services/ordem/check-in";
+import { useCheckOut } from "@/services/ordem/check-out";
 import { Ordem, useFetchOrders } from "@/services/ordem/fetch-orders";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { AlertCircle, ArrowLeft, Calendar, Clock, User } from "lucide-react";
+import { AlertCircle, ArrowLeft, Calendar, Clock, Play, Square, User } from "lucide-react";
 import { useMemo } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -29,10 +32,15 @@ export function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const { data: user } = useAuth();
   const { data: orders = [], isLoading } = useFetchOrders();
+  const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn();
+  const { mutate: checkOut, isPending: isCheckingOut } = useCheckOut();
   
   const order = useMemo(() => orders.find(o => o.id === id) || null, [orders, id]);
-  console.log({order});
+  
+  const canManageOrder = user?.role === 'admin' || 
+    (user?.role === 'agent' && order?.responsavel_id === user.id);
 
   const generateTimeline = (order: Ordem): TimelineEvent[] => {
     const timeline: TimelineEvent[] = [];
@@ -189,10 +197,39 @@ export function OrderDetail() {
                 Detalhes da Ordem de Serviço
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-3">
               <Badge variant="outline" className={statusConfig[order.status].className}>
                 {statusConfig[order.status].label}
               </Badge>
+              
+              {canManageOrder && (
+                <div className="flex gap-2">
+                  {order.status === 'aberta' && (
+                    <Button
+                      size="sm"
+                      onClick={() => checkIn(order.id)}
+                      disabled={isCheckingIn}
+                      className="gap-2"
+                    >
+                      <Play className="h-4 w-4" />
+                      {isCheckingIn ? 'Iniciando...' : 'Iniciar'}
+                    </Button>
+                  )}
+                  
+                  {order.status === 'em_andamento' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => checkOut(order.id)}
+                      disabled={isCheckingOut}
+                      className="gap-2"
+                    >
+                      <Square className="h-4 w-4" />
+                      {isCheckingOut ? 'Finalizando...' : 'Finalizar'}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
