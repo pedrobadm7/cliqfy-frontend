@@ -59,7 +59,7 @@ export function OrderDetail() {
         id: "2",
         tipo: "atribuicao",
         descricao: "Técnico responsável atribuído",
-        data: order.data_atualizacao,
+        data: order.data_criacao,
         usuario: order.responsavel.nome,
         observacao: `Responsável: ${order.responsavel.nome}`
       });
