@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório"),
+  email: z.email("E-mail inválido"),
   senha: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
 });
 

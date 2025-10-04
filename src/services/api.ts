@@ -17,17 +17,37 @@ const api = ky.create({
         }
       },
     ],
-    afterResponse: [
-      (_request, _options, response) => {
-        if (response.status === 401) {
-          localStorage.removeItem('access_token');
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
-          }
+afterResponse: [
+  async (request, _options, response) => {
+    if (response.status === 401) {
+      try {
+        const refreshResponse = await ky.post(`${config.apiUrl}/auth/refresh`);
+
+        if (refreshResponse.ok) {
+          const { access_token } = await refreshResponse.json<{ access_token: string }>();
+          localStorage.setItem('access_token', access_token);
+
+          const newRequest = new Request(request.url, {
+            method: request.method,
+            headers: {
+              ...Object.fromEntries(request.headers.entries()),
+              'Authorization': `Bearer ${access_token}`,
+            },
+            body: request.body,
+          });
+
+          return ky(newRequest);
         }
-        return response;
-      },
-    ],
+      } catch (error) {
+        localStorage.removeItem('access_token');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+    }
+    return response;
+  },
+],
     beforeError: [
       (error) => {
         console.error('API Error:', error);

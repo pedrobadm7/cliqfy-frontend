@@ -2,8 +2,9 @@
 import { OrdersFilters } from '@/components/OrdersFilters';
 import { OrdersTable } from '@/components/OrdersTable';
 import { Button } from "@/components/ui/button";
+import { useLogout } from '@/services/auth/logout';
 import { useFetchOrders } from '@/services/ordem/fetch-orders';
-import { Plus } from "lucide-react";
+import { LogOut, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export function Dashboard() {
@@ -14,6 +15,7 @@ export function Dashboard() {
   });
 
   const { data: orders = [], isLoading, error } = useFetchOrders();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   const filteredOrders = useMemo(() => {
     let filtered = orders;
@@ -54,10 +56,22 @@ export function Dashboard() {
               Gerencie suas ordens de manutenção
             </p>
           </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nova Ordem
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nova Ordem
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => logout()}
+              disabled={isLoggingOut}
+              className="gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+              {isLoggingOut ? 'Saindo...' : 'Sair'}
+            </Button>
+          </div>
         </div>
       </header>
 

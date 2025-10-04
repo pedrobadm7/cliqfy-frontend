@@ -12,7 +12,7 @@ export interface User {
   updatedAt: string;
 }
 
-export const useAuth = () => {
+export const useAuth = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async (): Promise<User> => {
@@ -21,5 +21,6 @@ export const useAuth = () => {
     },
     retry: false,
     staleTime: 1000 * 60 * 5,
+    enabled: options?.enabled ?? true,
   });
 };

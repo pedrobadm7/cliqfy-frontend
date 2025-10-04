@@ -6,9 +6,12 @@ interface PublicRouteProps {
 }
 
 export const PublicRoute = ({ children }: PublicRouteProps) => {
-  const { data: user, isLoading } = useAuth();
+  const hasToken = localStorage.getItem('access_token');
+  const { data: user, isLoading } = useAuth({
+    enabled: !!hasToken, // Só faz a requisição se tiver token
+  });
 
-  if (isLoading) {
+  if (hasToken && isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
@@ -16,7 +19,7 @@ export const PublicRoute = ({ children }: PublicRouteProps) => {
     );
   }
 
-  if (user) {
+  if (hasToken && user) {
     return <Navigate to="/dashboard" replace />;
   }
 
